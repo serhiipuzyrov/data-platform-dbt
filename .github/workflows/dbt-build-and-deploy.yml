@@ -31,8 +31,10 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
+          token_format: 'access_token'
           workload_identity_provider: "projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
           service_account: "terraform-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com"
+
 
       # Configure Docker to use gcloud as a credential helper
       - name: Configure Docker
@@ -48,9 +50,12 @@ jobs:
         run: |
           docker run --rm \
             -e DBT_PROFILES_DIR=/.dbt \
+            -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/adc.json \
             -e PROJECT_ID=${{ env.PROJECT_ID }} \
             -e REGION=${{ env.REGION }} \
+            -v "${{ steps.auth.outputs.credentials_file_path }}:/tmp/adc.json:ro" \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
+
 
 
       # Push to Artifact Registry only if dbt run succeeded
