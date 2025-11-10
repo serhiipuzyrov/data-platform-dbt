@@ -1,0 +1,19 @@
+data_platform_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: data-platform-dev-477621
+      dataset: dbt_dev
+      location: europe-central2
+      threads: 4
+      timeout_seconds: 300
+    prod:
+      type: bigquery
+      method: service-account
+      project: data-platform-prod-477621
+      dataset: dbt_prod
+      location: europe-central2
+      threads: 4
+      timeout_seconds: 300

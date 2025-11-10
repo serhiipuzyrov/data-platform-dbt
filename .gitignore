@@ -1,0 +1,10 @@
+# dbt
+target/
+dbt_packages/
+logs/
+.user.yml
+# secrets
+*.json
+# other
+.venv
+.idea

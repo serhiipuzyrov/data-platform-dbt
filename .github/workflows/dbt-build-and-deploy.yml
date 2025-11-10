@@ -1,0 +1,64 @@
+name: Build and Deploy DBT
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+env:
+  PROJECT_ID: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}
+  REGION: europe-central2
+  REPOSITORY: data-platform-dbt
+  IMAGE_NAME: dbt-image
+  DOCKERFILE_PATH: ./Dockerfile
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      # Checkout your repository
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Authenticate to GCP via Workload Identity Federation
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/414715431520/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+          service_account: 'terraform-sa@data-platform-dev-477621.iam.gserviceaccount.com'
+
+      # Configure Docker to use gcloud as a credential helper
+      - name: Configure Docker
+        run: gcloud auth configure-docker "${{ env.REGION }}-docker.pkg.dev" --quiet
+
+      # Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" -f $DOCKERFILE_PATH .
+
+      # Run DBT inside Docker container to test
+      - name: Test DBT build
+        run: |
+          docker run --rm \
+            -e DBT_TARGET=dev \
+            -e PROJECT_ID=${{ env.PROJECT_ID }} \
+            -e REGION=${{ env.REGION }} \
+            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
+            dbt run
+
+      # Push to Artifact Registry only if dbt run succeeded
+      - name: Push image to Artifact Registry
+        if: success()
+        run: |
+          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
+
+      # Optionally, output success
+      - name: Done
+        if: success()
+        run: echo "✅ DBT image successfully built and pushed!"
