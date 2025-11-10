@@ -47,12 +47,10 @@ jobs:
       - name: Test DBT build
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}:/usr/app \
-            -w /usr/app \
+            -e DBT_PROFILES_DIR=/.dbt \
             -e PROJECT_ID=${{ env.PROJECT_ID }} \
             -e REGION=${{ env.REGION }} \
-            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
-            dbt run
+            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
 
 
       # Push to Artifact Registry only if dbt run succeeded
