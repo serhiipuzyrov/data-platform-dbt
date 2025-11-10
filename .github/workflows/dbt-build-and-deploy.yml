@@ -8,6 +8,7 @@ on:
 
 env:
   PROJECT_ID: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}
+  PROJECT_NUMBER: ${{ github.ref == 'refs/heads/main' && '1076941767249' || '823642180837' }}
   REGION: europe-central2
   REPOSITORY: data-platform-dbt
   IMAGE_NAME: dbt-image
@@ -30,8 +31,8 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: 'projects/414715431520/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'terraform-sa@data-platform-dev-477621.iam.gserviceaccount.com'
+          workload_identity_provider: "projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
+          service_account: "terraform-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com"
 
       # Configure Docker to use gcloud as a credential helper
       - name: Configure Docker
