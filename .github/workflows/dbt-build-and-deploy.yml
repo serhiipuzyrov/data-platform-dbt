@@ -77,10 +77,9 @@ jobs:
           docker run --rm \
             -e DBT_PROFILES_DIR=/.dbt \
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
-            -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/adc.json \
             -e PROJECT_ID=${{ env.PROJECT_ID }} \
             -e REGION=${{ env.REGION }} \
-            -v "${{ steps.auth.outputs.credentials_file_path }}:/tmp/adc.json:ro" \
+            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
 
 
