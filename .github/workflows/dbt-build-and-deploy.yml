@@ -58,6 +58,12 @@ jobs:
         run: |
           docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" -f $DOCKERFILE_PATH .
 
+      - name: Debug profiles.yml
+        run: |
+          docker run --rm \
+            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
+            "cat /.dbt/profiles.yml"
+
       # Run DBT inside Docker container to test
       - name: Test DBT build
         run: |
