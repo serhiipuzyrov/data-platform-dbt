@@ -16,5 +16,5 @@ COPY .dbt/profiles.yml /.dbt/profiles.yml
 # Run all dbt commands in order
 ENTRYPOINT ["sh", "-c"]
 CMD ["dbt deps --profiles-dir $DBT_PROFILES_DIR && \
-      dbt source freshness --profiles-dir $DBT_PROFILES_DIR && \
-      dbt build --profiles-dir $DBT_PROFILES_DIR"]
+      dbt source freshness --profiles-dir $DBT_PROFILES_DIR --target ${DBT_TARGET:-dev} && \
+      dbt build --profiles-dir $DBT_PROFILES_DIR --target ${DBT_TARGET:-dev}"]
