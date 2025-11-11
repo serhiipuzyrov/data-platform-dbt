@@ -7,7 +7,7 @@ data_platform_dbt:
       project: "{{ env_var('PROJECT_ID', 'data-platform-dev-477621') }}"
       dataset: dbt_dev
       location: "{{ env_var('REGION', 'europe-central2') }}"
-      threads: 4
+      threads: 1
       timeout_seconds: 300
       token: "{{ env_var('CLOUDSDK_AUTH_ACCESS_TOKEN', '') }}"
     prod:
@@ -16,6 +16,6 @@ data_platform_dbt:
       project: "{{ env_var('PROJECT_ID', 'data-platform-prod-477621') }}"
       dataset: dbt_prod
       location: "{{ env_var('REGION', 'europe-central2') }}"
-      threads: 4
+      threads: 1
       timeout_seconds: 300
       token: "{{ env_var('CLOUDSDK_AUTH_ACCESS_TOKEN', '') }}"
