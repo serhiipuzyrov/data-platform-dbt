@@ -6,17 +6,18 @@ on:
       - dev
       - main
 
-env:
-  PROJECT_ID: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}
-  PROJECT_NUMBER: ${{ github.ref == 'refs/heads/main' && '1076941767249' || '823642180837' }}
-  REGION: europe-central2
-  REPOSITORY: data-platform-dbt
-  IMAGE_NAME: dbt-image
-  DOCKERFILE_PATH: ./Dockerfile
-
 jobs:
   build-test-push:
     runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}
+      PROJECT_NUMBER: ${{ github.ref == 'refs/heads/main' && '1076941767249' || '823642180837' }}
+      REGION: europe-central2
+      REPOSITORY: data-platform-dbt
+      IMAGE_NAME: dbt-image
+      DOCKERFILE_PATH: ./Dockerfile
+
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -25,6 +26,16 @@ jobs:
       # Checkout your repository
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Debug Environment Configuration
+        run: |
+          echo "================================"
+          echo "Environment Configuration"
+          echo "================================"
+          echo "Branch: ${{ github.ref }}"
+          echo "Project ID: ${{ env.PROJECT_ID }}"
+          echo "Project Number: ${{ env.PROJECT_NUMBER }}"
+          echo "================================"
 
       # Authenticate to GCP via Workload Identity Federation
       - name: Authenticate to Google Cloud
