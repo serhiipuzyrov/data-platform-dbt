@@ -48,6 +48,13 @@ jobs:
           workload_identity_provider: "projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
           service_account: "terraform-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com"
 
+      # Debug: Check credentials file path
+      - name: Debug auth output
+        run: |
+          echo "Credentials file path: ${{ steps.auth.outputs.credentials_file_path }}"
+          ls -la "${{ steps.auth.outputs.credentials_file_path }}" || echo "Credentials file not found"
+          cat "${{ steps.auth.outputs.credentials_file_path }}" | head -n 5 || echo "Cannot read credentials file"
+
 
       # Configure Docker to use gcloud as a credential helper
       - name: Configure Docker
