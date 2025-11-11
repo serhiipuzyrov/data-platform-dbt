@@ -4,7 +4,14 @@ WORKDIR /
 
 COPY . .
 
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# Install gcloud CLI and git
+RUN apt-get update && \
+    apt-get install -y git curl && \
+    curl https://sdk.cloud.google.com | bash && \
+    rm -rf /var/lib/apt/lists/*
+
+# Add gcloud to PATH
+ENV PATH="/root/google-cloud-sdk/bin:${PATH}"
 
 # Install dbt BigQuery adapter
 RUN pip install --upgrade pip
