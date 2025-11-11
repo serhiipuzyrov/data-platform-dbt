@@ -3,7 +3,7 @@ data_platform_dbt:
   outputs:
     dev:
       type: bigquery
-      method: service-account
+      method: oauth
       project: "{{ env_var('PROJECT_ID', 'data-platform-dev-477621') }}"
       dataset: dbt_dev
       location: "{{ env_var('REGION', 'europe-central2') }}"
@@ -11,7 +11,7 @@ data_platform_dbt:
       timeout_seconds: 300
     prod:
       type: bigquery
-      method: service-account
+      method: oauth
       project: "{{ env_var('PROJECT_ID', 'data-platform-prod-477621') }}"
       dataset: dbt_prod
       location: "{{ env_var('REGION', 'europe-central2') }}"

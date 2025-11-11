@@ -65,6 +65,7 @@ jobs:
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
             -e PROJECT_ID=${{ env.PROJECT_ID }} \
             -e REGION=${{ env.REGION }} \
+            -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/key.json \
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
 
