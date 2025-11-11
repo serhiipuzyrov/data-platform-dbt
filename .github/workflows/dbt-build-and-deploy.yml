@@ -48,14 +48,6 @@ jobs:
           workload_identity_provider: "projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
           service_account: "terraform-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com"
 
-      # Debug: Check credentials file path
-      - name: Debug auth output
-        run: |
-          echo "Credentials file path: ${{ steps.auth.outputs.credentials_file_path }}"
-          ls -la "${{ steps.auth.outputs.credentials_file_path }}" || echo "Credentials file not found"
-          cat "${{ steps.auth.outputs.credentials_file_path }}" | head -n 5 || echo "Cannot read credentials file"
-
-
       # Configure Docker to use gcloud as a credential helper
       - name: Configure Docker
         run: gcloud auth configure-docker "${{ env.REGION }}-docker.pkg.dev" --quiet
@@ -64,12 +56,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" -f $DOCKERFILE_PATH .
-
-      - name: Debug profiles.yml
-        run: |
-          docker run --rm \
-            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
-            "cat /.dbt/profiles.yml"
 
       # Run DBT inside Docker container to test
       - name: Test DBT build
@@ -81,8 +67,6 @@ jobs:
             -e REGION=${{ env.REGION }} \
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
-
-
 
       # Push to Artifact Registry only if dbt run succeeded
       - name: Push image to Artifact Registry
