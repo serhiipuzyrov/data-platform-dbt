@@ -1,2 +1,4 @@
 dbt-bigquery==1.10.3
 dbt-core==1.10.13
+google-auth==2.43.0
+google-cloud-bigquery==3.38.0
