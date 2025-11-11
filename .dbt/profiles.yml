@@ -1,19 +1,21 @@
 data_platform_dbt:
-  target: dev
+  target: "{{ env_var('DBT_TARGET', 'dev') }}"
   outputs:
     dev:
       type: bigquery
-      method: oauth
-      project: data-platform-dev-477621
+      method: service-account
+      project: "{{ env_var('PROJECT_ID', 'data-platform-dev-477621') }}"
       dataset: dbt_dev
-      location: europe-central2
+      location: "{{ env_var('REGION', 'europe-central2') }}"
       threads: 4
       timeout_seconds: 300
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
     prod:
       type: bigquery
       method: service-account
-      project: data-platform-prod-477621
+      project: "{{ env_var('PROJECT_ID', 'data-platform-prod-477621') }}"
       dataset: dbt_prod
-      location: europe-central2
+      location: "{{ env_var('REGION', 'europe-central2') }}"
       threads: 4
       timeout_seconds: 300
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
