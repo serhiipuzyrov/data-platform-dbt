@@ -16,7 +16,7 @@ jobs:
       DBT_TARGET: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
       REPOSITORY: data-platform-dbt
       REGION: europe-central2
-      IMAGE: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}.pkg.dev/data-platform-dbt/dbt-image
+      IMAGE: ${{ env.REGION }}-docker.pkg.dev/${{ PROJECT_ID }}.pkg.dev/data-platform-dbt/dbt-image:latest
       DOCKERFILE_PATH: ./Dockerfile
 
     permissions:
@@ -55,7 +55,7 @@ jobs:
       # Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.IMAGE }}:latest" -f $DOCKERFILE_PATH .
+          docker build -t ${{ env.IMAGE }} -f $DOCKERFILE_PATH .
 
       # Run DBT inside Docker container to test
       - name: Test DBT build
@@ -64,14 +64,14 @@ jobs:
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
             -e DBT_AUTH_METHOD=oauth-secrets \
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
-            "${{ env.REGION }}-docker.pkg.dev/${{ env.IMAGE }}:latest"
+            ${{ env.IMAGE }}
 
 
       # Push to Artifact Registry only if dbt run succeeded
       - name: Push image to Artifact Registry
         if: success()
         run: |
-          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.IMAGE }}:latest"
+          docker push ${{ env.IMAGE }}
 
       # Optionally, output success
       - name: Done
