@@ -53,7 +53,7 @@ jobs:
       # Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t "${{ env.REGION }}-${{ env.IMAGE }}" -f $DOCKERFILE_PATH .
+          docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.IMAGE }}:latest" -f $DOCKERFILE_PATH .
 
       # Run DBT inside Docker container to test
       - name: Test DBT build
