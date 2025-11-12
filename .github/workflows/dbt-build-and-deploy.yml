@@ -61,11 +61,12 @@ jobs:
       - name: Test DBT build
         run: |
           docker run --rm \
+            -e DBT_PROFILES_DIR=/.dbt \
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
             -e PROJECT_ID=${{ env.PROJECT_ID }} \
             -e REGION=${{ env.REGION }} \
-            -e DBT_AUTH_METHOD=oauth \
-            -e CLOUDSDK_AUTH_ACCESS_TOKEN="${{ steps.auth.outputs.access_token }}" \
+            -e DBT_AUTH_METHOD=oauth-secrets \
+            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
 
 
