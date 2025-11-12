@@ -14,6 +14,7 @@ jobs:
       PROJECT_ID: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}
       PROJECT_NUMBER: ${{ github.ref == 'refs/heads/main' && '1076941767249' || '823642180837' }}
       DBT_TARGET: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+      WIF_CLIENT_ID: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider
       REGION: europe-central2
       REPOSITORY: data-platform-dbt
       IMAGE_NAME: dbt-image
@@ -45,8 +46,8 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           token_format: 'access_token'
-          workload_identity_provider: "projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
-          service_account: "terraform-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com"
+          workload_identity_provider: "${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
+          service_account: "dbt-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com"
 
       # Configure Docker to use gcloud as a credential helper
       - name: Configure Docker
@@ -65,9 +66,10 @@ jobs:
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
             -e PROJECT_ID=${{ env.PROJECT_ID }} \
             -e REGION=${{ env.REGION }} \
-            -e DBT_AUTH_METHOD=oauth-secrets \
-            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
+            -e DBT_AUTH_METHOD=oauth-wif \
+            -e WIF_CLIENT_ID="${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider" \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
+
 
       # Push to Artifact Registry only if dbt run succeeded
       - name: Push image to Artifact Registry
