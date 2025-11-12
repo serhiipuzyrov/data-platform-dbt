@@ -17,6 +17,7 @@ jobs:
       REPOSITORY: data-platform-dbt
       REGION: europe-central2
       IMAGE: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}.pkg.dev/data-platform-dbt/dbt-image
+      DOCKERFILE_PATH: ./Dockerfile
 
     permissions:
       contents: 'read'
@@ -54,7 +55,7 @@ jobs:
       # Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" -f $DOCKERFILE_PATH .
+          docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.IMAGE }}:latest" -f $DOCKERFILE_PATH .
 
       # Run DBT inside Docker container to test
       - name: Test DBT build
