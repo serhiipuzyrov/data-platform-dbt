@@ -14,7 +14,6 @@ jobs:
       PROJECT_ID: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}
       PROJECT_NUMBER: ${{ github.ref == 'refs/heads/main' && '1076941767249' || '823642180837' }}
       DBT_TARGET: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-      WIF_CLIENT_ID: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider
       REGION: europe-central2
       REPOSITORY: data-platform-dbt
       IMAGE_NAME: dbt-image
