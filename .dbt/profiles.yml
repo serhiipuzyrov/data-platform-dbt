@@ -3,13 +3,13 @@ data_platform_dbt:
   outputs:
     dev:
       type: bigquery
-      method: "{{ env_var('DBT_AUTH_METHOD', 'oauth-secrets') }}"
+      method: oauth
       project: "{{ env_var('PROJECT_ID', 'data-platform-dev-477621') }}"
       dataset: dbt_dev
       location: "{{ env_var('REGION', 'europe-central2') }}"
       threads: 4
       timeout_seconds: 300
-      service_account: "dbt-runner@data-platform-dev-477621.iam.gserviceaccount.com"
+      impersonate_service_account: "dbt-runner@data-platform-dev-477621.iam.gserviceaccount.com"
     prod:
       type: bigquery
       method: "{{ env_var('DBT_AUTH_METHOD', 'oauth-secrets') }}"
