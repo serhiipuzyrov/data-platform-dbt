@@ -19,5 +19,5 @@ data_platform_dbt:
       location: "europe-central2"
       threads: 4
       timeout_seconds: 300
-      impersonate_service_account: "dbt-runner@data-platform-dev-477621.iam.gserviceaccount.com"
+      impersonate_service_account: "dbt-runner@data-platform-prod-477621.iam.gserviceaccount.com"
       token: "{{ env_var('CLOUDSDK_AUTH_ACCESS_TOKEN', '') }}"
