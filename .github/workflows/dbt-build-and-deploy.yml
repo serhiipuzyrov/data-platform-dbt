@@ -48,10 +48,6 @@ jobs:
           workload_identity_provider: "projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
           service_account: "terraform-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com"
 
-      # Configure Docker to use gcloud as a credential helper
-      - name: Configure Docker
-        run: gcloud auth configure-docker "${{ env.REGION }}-docker.pkg.dev" --quiet
-
       # Build Docker image
       - name: Build Docker image
         run: |
@@ -63,8 +59,6 @@ jobs:
           docker run --rm \
             -e DBT_PROFILES_DIR=/.dbt \
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
-            -e PROJECT_ID=${{ env.PROJECT_ID }} \
-            -e REGION=${{ env.REGION }} \
             -e DBT_AUTH_METHOD=oauth-secrets \
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
