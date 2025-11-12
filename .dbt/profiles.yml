@@ -4,18 +4,18 @@ data_platform_dbt:
     dev:
       type: bigquery
       method: oauth
-      project: "{{ env_var('PROJECT_ID', 'data-platform-dev-477621') }}"
+      project: "data-platform-dev-477621"
       dataset: dbt_dev
-      location: "{{ env_var('REGION', 'europe-central2') }}"
+      location: "europe-central2"
       threads: 4
       timeout_seconds: 300
       impersonate_service_account: "dbt-runner@data-platform-dev-477621.iam.gserviceaccount.com"
     prod:
       type: bigquery
-      method: "{{ env_var('DBT_AUTH_METHOD', 'oauth-secrets') }}"
-      project: "{{ env_var('PROJECT_ID', 'data-platform-prod-477621') }}"
+      method: oauth
+      project: "data-platform-prod-477621"
       dataset: dbt_prod
-      location: "{{ env_var('REGION', 'europe-central2') }}"
+      location: "europe-central2"
       threads: 4
       timeout_seconds: 300
-      service_account: "dbt-runner@data-platform-prod-477621.iam.gserviceaccount.com"
+      impersonate_service_account: "dbt-runner@data-platform-dev-477621.iam.gserviceaccount.com"
