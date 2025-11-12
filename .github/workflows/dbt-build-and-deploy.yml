@@ -65,7 +65,7 @@ jobs:
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
             -e PROJECT_ID=${{ env.PROJECT_ID }} \
             -e REGION=${{ env.REGION }} \
-            -e DBT_AUTH_METHOD=oauth-wif \
+            -e DBT_AUTH_METHOD=external-oauth-wif \
             -e WIF_CLIENT_ID="${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider" \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
 
