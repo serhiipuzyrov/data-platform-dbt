@@ -10,7 +10,6 @@ data_platform_dbt:
       threads: 4
       timeout_seconds: 300
       service_account: "dbt-runner@data-platform-dev-477621.iam.gserviceaccount.com"
-      token_endpoint: "https://sts.googleapis.com/v1/token"
     prod:
       type: bigquery
       method: "{{ env_var('DBT_AUTH_METHOD', 'oauth-secrets') }}"
@@ -20,4 +19,3 @@ data_platform_dbt:
       threads: 4
       timeout_seconds: 300
       service_account: "dbt-runner@data-platform-prod-477621.iam.gserviceaccount.com"
-      token_endpoint: "https://sts.googleapis.com/v1/token"
