@@ -70,12 +70,14 @@ jobs:
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
             -e DBT_AUTH_METHOD=oauth-secrets \
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
-            -v ${{ github.workspace }}/target:/app/target \
+            -v ${{ github.workspace }}/target:/target \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
             dbt docs generate --target ${{ env.DBT_TARGET }}
+
           echo "☁️ Uploading docs to GCS..."
           BUCKET_NAME="dbt-docs-${{ env.PROJECT_ID }}"
           gcloud storage cp -r ${{ github.workspace }}/target/* gs://$BUCKET_NAME/
+
 
       # Output success
       - name: Done
