@@ -72,7 +72,7 @@ jobs:
             -v ${{ github.workspace }}:/app \
             -w /app \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
-            bash -c "gcloud auth activate-refresh-token --access-token=${CLOUDSDK_AUTH_ACCESS_TOKEN} || true && dbt docs generate --target ${{ env.DBT_TARGET }}"
+            bash -c "gcloud auth activate-refresh-token --access-token-file=${CLOUDSDK_AUTH_ACCESS_TOKEN} || true && dbt docs generate --target ${{ env.DBT_TARGET }}"
           echo "☁️ Uploading docs to GCS..."
           if ! command -v gsutil &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y google-cloud-sdk
