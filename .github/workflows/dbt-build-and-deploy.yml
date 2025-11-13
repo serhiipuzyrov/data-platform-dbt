@@ -9,7 +9,6 @@ on:
 jobs:
   build-test-push:
     runs-on: ubuntu-latest
-
     env:
       PROJECT_ID: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}
       PROJECT_NUMBER: ${{ github.ref == 'refs/heads/main' && '1076941767249' || '823642180837' }}
@@ -24,7 +23,6 @@ jobs:
       id-token: 'write'
 
     steps:
-      # Checkout your repository
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -68,21 +66,21 @@ jobs:
         run: |
           echo "🧱 Generating dbt documentation..."
           docker run --rm \
+            -e DBT_PROFILES_DIR=/.dbt \
+            -e DBT_TARGET=${{ env.DBT_TARGET }} \
+            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             -v ${{ github.workspace }}:/app \
             -w /app \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
-            bash -c "dbt docs generate --target ${{ env.DBT_TARGET }}"
-
+            bash -c "gcloud auth activate-refresh-token --access-token=${CLOUDSDK_AUTH_ACCESS_TOKEN} || true && dbt docs generate --target ${{ env.DBT_TARGET }}"
           echo "☁️ Uploading docs to GCS..."
-          # Install gcloud if not available
           if ! command -v gsutil &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y google-cloud-sdk
           fi
           BUCKET_NAME="dbt-docs-${{ env.PROJECT_ID }}"
           gsutil -m rsync -r -d ./target gs://$BUCKET_NAME
 
-
-      # Optionally, output success
+      # Output success
       - name: Done
         if: success()
         run: echo "✅ DBT image successfully built and pushed!"
