@@ -62,6 +62,26 @@ jobs:
         run: |
           docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
 
+      # Generate and upload dbt documentation to Cloud Storage
+      - name: Generate and Upload DBT Docs
+        if: success()
+        run: |
+          echo "🧱 Generating dbt documentation..."
+          docker run --rm \
+            -v ${{ github.workspace }}:/app \
+            -w /app \
+            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
+            bash -c "dbt docs generate --target ${{ env.DBT_TARGET }}"
+
+          echo "☁️ Uploading docs to GCS..."
+          # Install gcloud if not available
+          if ! command -v gsutil &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y google-cloud-sdk
+          fi
+          BUCKET_NAME="dbt-docs-${{ env.PROJECT_ID }}"
+          gsutil -m rsync -r -d ./target gs://$BUCKET_NAME
+
+
       # Optionally, output success
       - name: Done
         if: success()
