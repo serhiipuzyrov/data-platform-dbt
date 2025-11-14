@@ -98,14 +98,14 @@ jobs:
       - name: Push docs image
         if: success()
         run: |
-          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.DOCS_REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest"
+          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest"
 
       # Deploy to Cloud Run
       - name: Deploy dbt docs to Cloud Run
         if: success()
         run: |
           gcloud run deploy dbt-docs-${{ env.DBT_TARGET }} \
-            --image="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.DOCS_REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest" \
+            --image="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest" \
             --region=${{ env.REGION }} \
             --platform=managed \
             --allow-unauthenticated=false \
