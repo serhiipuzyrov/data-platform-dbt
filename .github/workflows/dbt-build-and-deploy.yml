@@ -108,7 +108,7 @@ jobs:
             --image="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest" \
             --region=${{ env.REGION }} \
             --platform=managed \
-            --allow-unauthenticated=false \
+            --no-allow-unauthenticated \
             --project=${{ env.PROJECT_ID }}    
 
       # Output success
