@@ -63,21 +63,26 @@ jobs:
           
       
 
-      # Generate dbt docs
+      # Generate dbt docs and copy from container
       - name: Generate dbt docs
         if: success()
         run: |
-          mkdir -p target
-          docker run --rm \
-            -v $(pwd)/target:/app/target \
+          # Run dbt docs generate in a named container
+          docker run --name dbt-docs-temp \
             -e DBT_PROFILES_DIR=/.dbt \
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
             -e DBT_AUTH_METHOD=oauth-secrets \
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
             dbt docs generate --target ${{ env.DBT_TARGET }}
-            # Verify docs were generated
+          
+          # Copy target directory from container (WORKDIR is / so target is at /target)
+          docker cp dbt-docs-temp:/target ./target
+          
+          # Clean up container
+          docker rm dbt-docs-temp
 
+      # Verify docs were generated
       - name: Verify docs artifacts
         if: success()
         run: |
