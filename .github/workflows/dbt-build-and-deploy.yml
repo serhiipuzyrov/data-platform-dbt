@@ -45,21 +45,21 @@ jobs:
         run: |
           docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" -f $DOCKERFILE_PATH .
 
-#      # Run DBT inside Docker container to test
-#      - name: Test DBT build
-#        run: |
-#          docker run --rm \
-#            -e DBT_PROFILES_DIR=/.dbt \
-#            -e DBT_TARGET=${{ env.DBT_TARGET }} \
-#            -e DBT_AUTH_METHOD=oauth-secrets \
-#            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
-#            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
+      # Run DBT inside Docker container to test
+      - name: Test DBT build
+        run: |
+          docker run --rm \
+            -e DBT_PROFILES_DIR=/.dbt \
+            -e DBT_TARGET=${{ env.DBT_TARGET }} \
+            -e DBT_AUTH_METHOD=oauth-secrets \
+            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
+            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
 
-#      # Push to Artifact Registry only if dbt run succeeded
-#      - name: Push image to Artifact Registry
-#        if: success()
-#        run: |
-#          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
+      # Push to Artifact Registry only if dbt run succeeded
+      - name: Push image to Artifact Registry
+        if: success()
+        run: |
+          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
           
       
 
@@ -100,7 +100,7 @@ jobs:
         run: |
           docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest"
 
-      # Deploy to Cloud Run (update the service with new image)
+      # Deploy to Cloud Run
       - name: Deploy dbt docs to Cloud Run
         if: success()
         run: |
