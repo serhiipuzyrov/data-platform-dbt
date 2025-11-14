@@ -14,6 +14,7 @@ This repository provides a ready-to-use infrastructure setup that includes:
 - Connection to BigQuery
 - Multi-environment configuration (dev/prod)
 - CI/CD pipeline automation
+- Automatic dbt documentation generation and upload to Cloud Storage → https://storage.googleapis.com/dbt-docs-${PROJECT_ID}/index.html
 
 ## 🔧 Configuration
 
@@ -41,9 +42,9 @@ This repository provides a ready-to-use infrastructure setup that includes:
 
 1. Clone this repository
 2. Update the configuration values in the tables above to match your GCP projects
-3. Log into You GCP account: gcloud auth application-default login
-4. Install packages: pip install -r requirements.txt
-5. Test DBT for example by: dbt run
+3. Authenticate with GCP: gcloud auth application-default login
+4. Install Python packages: pip install -r requirements.txt
+5. Test dbt locally: dbt run
 6. Push project to Your GitHub
 
 ## 📝 Notes

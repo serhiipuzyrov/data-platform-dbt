@@ -9,7 +9,6 @@ on:
 jobs:
   build-test-push:
     runs-on: ubuntu-latest
-
     env:
       PROJECT_ID: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}
       PROJECT_NUMBER: ${{ github.ref == 'refs/heads/main' && '1076941767249' || '823642180837' }}
@@ -24,7 +23,6 @@ jobs:
       id-token: 'write'
 
     steps:
-      # Checkout your repository
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -47,14 +45,14 @@ jobs:
           docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" -f $DOCKERFILE_PATH .
 
       # Run DBT inside Docker container to test
-#      - name: Test DBT build
-#        run: |
-#          docker run --rm \
-#            -e DBT_PROFILES_DIR=/.dbt \
-#            -e DBT_TARGET=${{ env.DBT_TARGET }} \
-#            -e DBT_AUTH_METHOD=oauth-secrets \
-#            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
-#            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
+      - name: Test DBT build
+        run: |
+          docker run --rm \
+            -e DBT_PROFILES_DIR=/.dbt \
+            -e DBT_TARGET=${{ env.DBT_TARGET }} \
+            -e DBT_AUTH_METHOD=oauth-secrets \
+            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
+            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
 
       # Push to Artifact Registry only if dbt run succeeded
       - name: Push image to Artifact Registry
@@ -62,7 +60,25 @@ jobs:
         run: |
           docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
 
-      # Optionally, output success
+      # Generate and upload dbt documentation to Cloud Storage
+      - name: Generate and Upload DBT Docs
+        if: success()
+        run: |
+          echo "🧱 Generating dbt documentation..."
+          docker run --rm \
+            -e DBT_PROFILES_DIR=/.dbt \
+            -e DBT_TARGET=${{ env.DBT_TARGET }} \
+            -e DBT_AUTH_METHOD=oauth-secrets \
+            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
+            -v ${{ github.workspace }}/target:/target \
+            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
+            dbt docs generate --target ${{ env.DBT_TARGET }}
+          echo "☁️ Uploading docs to GCS..."
+          BUCKET_NAME="dbt-docs-${{ env.PROJECT_ID }}"
+          gcloud storage cp -r ${{ github.workspace }}/target/* gs://$BUCKET_NAME/
+          echo "✅ Docs uploaded: https://storage.googleapis.com/dbt-docs-${PROJECT_ID}/index.html"
+
+      # Output success
       - name: Done
         if: success()
         run: echo "✅ DBT image successfully built and pushed!"
