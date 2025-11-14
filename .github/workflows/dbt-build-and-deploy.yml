@@ -67,6 +67,7 @@ jobs:
       - name: Generate dbt docs
         if: success()
         run: |
+          mkdir -p target
           docker run --rm \
             -v $(pwd)/target:/app/target \
             -e DBT_PROFILES_DIR=/.dbt \
@@ -75,13 +76,22 @@ jobs:
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
             dbt docs generate --target ${{ env.DBT_TARGET }}
+            # Verify docs were generated
+
+      - name: Verify docs artifacts
+        if: success()
+        run: |
+          ls -la target/
+          test -f target/catalog.json && echo "✅ catalog.json found"
+          test -f target/manifest.json && echo "✅ manifest.json found"
+          test -f target/index.html && echo "✅ index.html found"
 
       # Copy generated docs to dbt-docs folder
       - name: Copy docs artifacts
         if: success()
         run: |
           mkdir -p dbt-docs/static
-          cp -r target/catalog.json target/manifest.json target/index.html dbt-docs/static/
+          cp target/catalog.json target/manifest.json target/index.html dbt-docs/static/
 
       # Build docs image
       - name: Build docs image
