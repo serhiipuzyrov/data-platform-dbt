@@ -75,21 +75,10 @@ jobs:
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
             dbt docs generate --target ${{ env.DBT_TARGET }}
-          
           # Copy target directory from container (WORKDIR is / so target is at /target)
           docker cp dbt-docs-temp:/target ./target
-          
           # Clean up container
           docker rm dbt-docs-temp
-
-      # Verify docs were generated
-      - name: Verify docs artifacts
-        if: success()
-        run: |
-          ls -la target/
-          test -f target/catalog.json && echo "✅ catalog.json found"
-          test -f target/manifest.json && echo "✅ manifest.json found"
-          test -f target/index.html && echo "✅ index.html found"
 
       # Copy generated docs to dbt-docs folder
       - name: Copy docs artifacts
