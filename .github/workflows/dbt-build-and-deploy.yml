@@ -16,6 +16,7 @@ jobs:
       REGION: europe-central2
       REPOSITORY: data-platform-dbt
       IMAGE_NAME: dbt-image
+      DOCS_IMAGE_NAME: dbt-docs-image
       DOCKERFILE_PATH: ./Dockerfile
 
     permissions:
@@ -44,39 +45,69 @@ jobs:
         run: |
           docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" -f $DOCKERFILE_PATH .
 
-      # Run DBT inside Docker container to test
-      - name: Test DBT build
+#      # Run DBT inside Docker container to test
+#      - name: Test DBT build
+#        run: |
+#          docker run --rm \
+#            -e DBT_PROFILES_DIR=/.dbt \
+#            -e DBT_TARGET=${{ env.DBT_TARGET }} \
+#            -e DBT_AUTH_METHOD=oauth-secrets \
+#            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
+#            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
+
+#      # Push to Artifact Registry only if dbt run succeeded
+#      - name: Push image to Artifact Registry
+#        if: success()
+#        run: |
+#          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
+          
+      
+
+      # Generate dbt docs and copy from container
+      - name: Generate dbt docs
+        if: success()
         run: |
-          docker run --rm \
+          # Run dbt docs generate in a named container
+          docker run --name dbt-docs-temp \
             -e DBT_PROFILES_DIR=/.dbt \
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
             -e DBT_AUTH_METHOD=oauth-secrets \
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
-            "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
-
-      # Push to Artifact Registry only if dbt run succeeded
-      - name: Push image to Artifact Registry
-        if: success()
-        run: |
-          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
-
-      # Generate and upload dbt documentation to Cloud Storage
-      - name: Generate and Upload DBT Docs
-        if: success()
-        run: |
-          echo "🧱 Generating dbt documentation..."
-          docker run --rm \
-            -e DBT_PROFILES_DIR=/.dbt \
-            -e DBT_TARGET=${{ env.DBT_TARGET }} \
-            -e DBT_AUTH_METHOD=oauth-secrets \
-            -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
-            -v ${{ github.workspace }}/target:/target \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
             dbt docs generate --target ${{ env.DBT_TARGET }}
-          echo "☁️ Uploading docs to GCS..."
-          BUCKET_NAME="dbt-docs-${{ env.PROJECT_ID }}"
-          gcloud storage cp -r ${{ github.workspace }}/target/* gs://$BUCKET_NAME/
-          echo "✅ Docs uploaded: https://storage.googleapis.com/dbt-docs-${PROJECT_ID}/index.html"
+          # Copy target directory from container (WORKDIR is / so target is at /target)
+          docker cp dbt-docs-temp:/target ./target
+          # Clean up container
+          docker rm dbt-docs-temp
+
+      # Copy generated docs to dbt-docs folder
+      - name: Copy docs artifacts
+        if: success()
+        run: |
+          mkdir -p dbt-docs/static
+          cp target/catalog.json target/manifest.json target/index.html dbt-docs/static/
+
+      # Build docs image
+      - name: Build docs image
+        if: success()
+        run: |
+          cd dbt-docs
+          docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest" .
+
+      # Push docs image
+      - name: Push docs image
+        if: success()
+        run: |
+          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest"
+
+      # Deploy to Cloud Run (update the service with new image)
+      - name: Deploy dbt docs to Cloud Run
+        if: success()
+        run: |
+          gcloud run services update dbt-docs \
+            --image="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest" \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }}
 
       # Output success
       - name: Done

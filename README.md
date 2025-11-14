@@ -14,7 +14,7 @@ This repository provides a ready-to-use infrastructure setup that includes:
 - Connection to BigQuery
 - Multi-environment configuration (dev/prod)
 - CI/CD pipeline automation
-- Automatic dbt documentation generation and upload to Cloud Storage → https://storage.googleapis.com/dbt-docs-${PROJECT_ID}/index.html
+- Automatic dbt documentation generation and upload to Cloud Run 
 
 ## 🔧 Configuration
 
