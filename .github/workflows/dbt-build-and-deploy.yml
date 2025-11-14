@@ -76,7 +76,7 @@ jobs:
           echo "☁️ Uploading docs to GCS..."
           BUCKET_NAME="dbt-docs-${{ env.PROJECT_ID }}"
           gcloud storage cp -r ${{ github.workspace }}/target/* gs://$BUCKET_NAME/
-
+          echo "✅ Docs uploaded: https://storage.googleapis.com/dbt-docs-${PROJECT_ID}/index.html"
 
       # Output success
       - name: Done
