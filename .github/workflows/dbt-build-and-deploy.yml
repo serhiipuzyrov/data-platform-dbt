@@ -61,8 +61,7 @@ jobs:
         run: |
           docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
           
-      
-
+      ### DBT Docs
       # Generate dbt docs and copy from container
       - name: Generate dbt docs
         if: success()
@@ -100,7 +99,7 @@ jobs:
         run: |
           docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest"
 
-      # Deploy to Cloud Run
+      # Deploy docs image to Cloud Run service
       - name: Deploy dbt docs to Cloud Run
         if: success()
         run: |
@@ -108,6 +107,17 @@ jobs:
             --image="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DOCS_IMAGE_NAME }}:latest" \
             --region=${{ env.REGION }} \
             --project=${{ env.PROJECT_ID }}
+
+      # Get DBT docs service URL
+      - name: Print dbt docs URL
+        if: success()
+        run: |
+          # Get the service URL
+          SERVICE_URL=$(gcloud run services describe dbt-docs \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --format='value(status.url)')
+          echo "DBT docs are available at: $SERVICE_URL"
 
       # Output success
       - name: Done
