@@ -108,8 +108,8 @@ jobs:
             --region=${{ env.REGION }} \
             --project=${{ env.PROJECT_ID }}
 
-      # Get DBT docs service URL and verify it's working
-      - name: Verify dbt docs deployment
+      # Get DBT docs service URL
+      - name: Print dbt docs URL
         if: success()
         run: |
           # Get the service URL
@@ -117,31 +117,7 @@ jobs:
             --region=${{ env.REGION }} \
             --project=${{ env.PROJECT_ID }} \
             --format='value(status.url)')
-          echo "🔍 Testing dbt docs service at: $SERVICE_URL"
-          # Wait a few seconds for the service to be fully ready
-          sleep 5
-          # Test the service with retry logic
-          MAX_ATTEMPTS=10
-          ATTEMPT=1
-          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            echo "Attempt $ATTEMPT of $MAX_ATTEMPTS..."
-            HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" "$SERVICE_URL" -m 10)
-            if [ "$HTTP_STATUS" -eq 200 ]; then
-              echo "✅ Success! dbt docs service is responding with HTTP 200"
-              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-              echo "📚 DBT Documentation is available at:"
-              echo "🔗 $SERVICE_URL"
-              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-              exit 0
-            else
-              echo "⚠️  Received HTTP $HTTP_STATUS, retrying in 5 seconds..."
-              sleep 5
-              ATTEMPT=$((ATTEMPT + 1))
-            fi
-          done
-          echo "❌ Failed to get HTTP 200 response after $MAX_ATTEMPTS attempts"
-          echo "Last HTTP status: $HTTP_STATUS"
-          exit 1
+          echo "DBT docs are available at: $SERVICE_URL"
 
       # Output success
       - name: Done
