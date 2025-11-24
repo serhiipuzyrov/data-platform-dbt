@@ -5,8 +5,10 @@ data_platform_dbt:
       type: bigquery
       method: "{{ env_var('DBT_AUTH_METHOD', 'oauth') }}"
       project: "data-platform-dev-477621"
-      dataset: dbt_dev
       location: "europe-central2"
+      compute_region: "europe-central2"
+      dataproc_region: "europe-central2"
+      gcs_bucket: "dbt-gcs-bucket-dev"
       threads: 4
       timeout_seconds: 300
       impersonate_service_account: "dbt-runner@data-platform-dev-477621.iam.gserviceaccount.com"
@@ -15,8 +17,10 @@ data_platform_dbt:
       type: bigquery
       method: "{{ env_var('DBT_AUTH_METHOD', 'oauth') }}"
       project: "data-platform-prod-477621"
-      dataset: dbt_prod
       location: "europe-central2"
+      compute_region: "europe-central2"
+      dataproc_region: "europe-central2"
+      gcs_bucket: "dbt-gcs-bucket-prod"
       threads: 4
       timeout_seconds: 300
       impersonate_service_account: "dbt-runner@data-platform-prod-477621.iam.gserviceaccount.com"
