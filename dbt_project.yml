@@ -16,5 +16,4 @@ snapshot-paths: ["snapshots"]
 # Default model configuration
 models:
   # Force every model to explicitly specify its materialization
-  +materialized: invalid_materialization #
-  +python_model: true
+  +materialized: invalid_materialization
