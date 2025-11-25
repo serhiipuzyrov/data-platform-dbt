@@ -13,6 +13,7 @@ jobs:
       PROJECT_ID: ${{ github.ref == 'refs/heads/main' && 'data-platform-prod-477621' || 'data-platform-dev-477621' }}
       PROJECT_NUMBER: ${{ github.ref == 'refs/heads/main' && '1076941767249' || '823642180837' }}
       DBT_TARGET: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+      SERVICE_ACCOUNT: ${{ github.ref == 'refs/heads/main' && 'dbt-runner@data-platform-prod-477621.iam.gserviceaccount.com' || 'dbt-runner@data-platform-dev-477621.iam.gserviceaccount.com' }}
       REGION: europe-central2
       REPOSITORY: data-platform-dbt
       IMAGE_NAME: dbt-image
@@ -52,6 +53,7 @@ jobs:
             -e DBT_PROFILES_DIR=/.dbt \
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
             -e DBT_AUTH_METHOD=oauth-secrets \
+            -e SERVICE_ACCOUNT=${{ env.SERVICE_ACCOUNT }} \
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
 
@@ -71,6 +73,7 @@ jobs:
             -e DBT_PROFILES_DIR=/.dbt \
             -e DBT_TARGET=${{ env.DBT_TARGET }} \
             -e DBT_AUTH_METHOD=oauth-secrets \
+            -e SERVICE_ACCOUNT=${{ env.SERVICE_ACCOUNT }} \
             -e CLOUDSDK_AUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} \
             "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest" \
             dbt docs generate --target ${{ env.DBT_TARGET }}

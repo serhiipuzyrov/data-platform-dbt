@@ -3,21 +3,21 @@ data_platform_dbt:
   outputs:
     dev:
       type: bigquery
-      method: "{{ env_var('DBT_AUTH_METHOD', 'oauth') }}"
       project: "data-platform-dev-477621"
-      dataset: dbt_dev
-      location: "europe-central2"
+      location: "EU"
+      schema: 'dbt_test'
       threads: 4
       timeout_seconds: 300
-      impersonate_service_account: "dbt-runner@data-platform-dev-477621.iam.gserviceaccount.com"
+      method: "{{ env_var('DBT_AUTH_METHOD', 'oauth') }}"
+      impersonate_service_account: "{{ env_var('SERVICE_ACCOUNT', '') }}"
       token: "{{ env_var('CLOUDSDK_AUTH_ACCESS_TOKEN', '') }}"
     prod:
       type: bigquery
-      method: "{{ env_var('DBT_AUTH_METHOD', 'oauth') }}"
       project: "data-platform-prod-477621"
-      dataset: dbt_prod
-      location: "europe-central2"
+      location: "EU"
+      schema: 'dbt_test'
       threads: 4
       timeout_seconds: 300
-      impersonate_service_account: "dbt-runner@data-platform-prod-477621.iam.gserviceaccount.com"
+      method: "{{ env_var('DBT_AUTH_METHOD', 'oauth') }}"
+      impersonate_service_account: "{{ env_var('SERVICE_ACCOUNT', '') }}"
       token: "{{ env_var('CLOUDSDK_AUTH_ACCESS_TOKEN', '') }}"
