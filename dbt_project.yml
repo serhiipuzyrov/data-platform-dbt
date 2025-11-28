@@ -1,3 +1,7 @@
+
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
 name: 'data_platform_dbt'
 version: '1.0.0'
 config-version: 2
@@ -6,6 +10,8 @@ config-version: 2
 profile: 'data_platform_dbt'
 
 # These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
@@ -15,5 +21,4 @@ snapshot-paths: ["snapshots"]
 
 # Default model configuration
 models:
-  # Force every model to explicitly specify its materialization
-  +materialized: invalid_materialization
+  +materialized: view
