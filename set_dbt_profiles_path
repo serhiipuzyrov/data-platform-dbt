@@ -3,6 +3,8 @@
 # Activate your venv first
 source .venv/bin/activate
 
+gcloud auth application-default login
+
 # Add to your venv activation script
 echo 'export DBT_PROFILES_DIR=/Users/serhii/PycharmProjects/data-platform-dbt/.dbt' >> .venv/bin/activate
 
