@@ -17,3 +17,7 @@ snapshot-paths: ["snapshots"]
 models:
   # Force every model to explicitly specify its materialization
   +materialized: invalid_materialization
+  # Add documentation details to BigQuery
+  +persist_docs:
+    relation: true
+    columns: true
